@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Weather App</title>
+</head>
+<body>
+    <h1>Current Weather Information</h1>
+    <div>
+        <label for="locationInput">Enter Zip Code or City Name:</label>
+        <input type="text" id="locationInput" placeholder="e.g., 90012 or Los Angeles">
+        <button id="fetchWeatherButton">Current Weather</button>
+    </div>
+    <div id="weather-info"></div>
+
+    <script>
+        const apiKey = '93f26e3c57081a6210de53b8dcfdfea4';
+
+        async function fetchWeather(location) {
+            try {
+                let response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}`);
+                let data = await response.json();
+
+                if (response.status === 200) {
+                    displayWeatherInfo(data);
+                } else {
+                    displayError(data.message);
+                }
+            } catch (error) {
+                console.log('Error fetching weather data:', error);
+                displayError('An error occurred while fetching weather data.');
+            }
+        }
+
+        function displayWeatherInfo(weatherData) {
+            let weatherInfoDiv = document.getElementById('weather-info');
+            let temperature = (weatherData.main.temp - 273.15).toFixed(2); 
+            let description = weatherData.weather[0].description;
+            let humidity = weatherData.main.humidity;
+            let windSpeed = weatherData.wind.speed;
+
+            let weatherHTML = `
+                <p>Temperature: ${temperature} °C</p>
+                <p>Description: ${description}</p>
+                <p>Humidity: ${humidity}%</p>
+                <p>Wind Speed: ${windSpeed} m/s</p>
+            `;
+
+            weatherInfoDiv.innerHTML = weatherHTML;
+        }
+
+        function displayError(errorMessage) {
+            let weatherInfoDiv = document.getElementById('weather-info');
+            weatherInfoDiv.innerHTML = `<p>Error: ${errorMessage}</p>`;
+        }
+
+        let fetchWeatherButton = document.getElementById('fetchWeatherButton');
+        let locationInput = document.getElementById('locationInput');
+
+        fetchWeatherButton.addEventListener('click', () => {
+            let location = locationInput.value.trim();
+
+            if (location) {
+                fetchWeather(location);
+            } else {
+                alert('Please enter a valid location.');
+            }
+        });
+
+        fetchWeather('90012');
+    </script>
+</body>
+</html>
+
